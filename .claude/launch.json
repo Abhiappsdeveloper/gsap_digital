@@ -4,7 +4,7 @@
     {
       "name": "digital-static",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["serve", "-l", "5050", "C:\\Users\\NS\\Documents\\ABHIJEET\\webpages\\digital"],
+      "runtimeArgs": ["serve", "-l", "5050", "C:\\Users\\NS\\Documents\\ABHIJEET\\git\\gsap_digital"],
       "port": 5050
     }
   ]
