@@ -14,21 +14,13 @@ import * as THREE from './three.module.min.js';
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
   camera.position.set(0, 0, 12);
 
-  scene.add(new THREE.AmbientLight(0x224466, 0.8));
-  const key = new THREE.DirectionalLight(0xffffff, 1.4);
+  scene.add(new THREE.AmbientLight(0x224466, 0.5));
+  const key = new THREE.DirectionalLight(0xffffff, 0.8);
   key.position.set(5, 6, 8);
   scene.add(key);
-  const rim = new THREE.PointLight(0x2fd8ff, 3.5, 25);
+  const rim = new THREE.PointLight(0x2fd8ff, 1.5, 20);
   rim.position.set(-4, 2, 4);
   scene.add(rim);
-  // Extra cyan light for enhanced glow
-  const extraLight = new THREE.PointLight(0x00ffee, 2.8, 30);
-  extraLight.position.set(2, 3, 5);
-  scene.add(extraLight);
-  // Fill light from opposite side
-  const fillLight = new THREE.PointLight(0x0088ff, 1.8, 20);
-  fillLight.position.set(-6, -2, -3);
-  scene.add(fillLight);
 
   function glowSprite(color, size) {
     const c = document.createElement('canvas');
@@ -232,29 +224,6 @@ import * as THREE from './three.module.min.js';
   scene.add(shellMesh);
   objects.push({ mesh: shellMesh, spin: new THREE.Vector3(0.03, -0.07, 0.02) });
 
-  // Light producer: glowing neon square frame
-  const squareGroup = new THREE.Group();
-  const frameMat = new THREE.MeshBasicMaterial({ color: 0x37e6ff });
-  const side = 2.6;
-  const barLen = side;
-  const barThickness = 0.08;
-  [0, 1, 2, 3].forEach((i) => {
-    const bar = new THREE.Mesh(new THREE.BoxGeometry(barLen, barThickness, barThickness), frameMat);
-    if (i < 2) {
-      bar.position.set(0, i === 0 ? side / 2 : -side / 2, 0);
-    } else {
-      bar.rotation.z = Math.PI / 2;
-      bar.position.set(i === 2 ? side / 2 : -side / 2, 0, 0);
-    }
-    squareGroup.add(bar);
-  });
-  squareGroup.position.set(1.6, 0.4, -2);
-  scene.add(squareGroup);
-  const squareLight = new THREE.PointLight(0x37e6ff, 3, 10);
-  squareLight.position.copy(squareGroup.position);
-  scene.add(squareLight);
-  squareGroup.add(glowSprite('#37e6ff', 5.5));
-  objects.push({ mesh: squareGroup, spin: new THREE.Vector3(0, 0.01, 0) });
 
   function resize() {
     const w = mount.clientWidth || 1;

@@ -43,27 +43,6 @@
       background: transparent !important;
     }
 
-    @keyframes glowHalo {
-      0%, 100% {
-        opacity: 0.6;
-        transform: translate(-50%, -50%) scale(1);
-      }
-      50% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1.2);
-      }
-    }
-
-    @keyframes glowHaloBright {
-      0%, 100% {
-        opacity: 0.7;
-        transform: translate(-50%, -50%) scale(0.9);
-      }
-      50% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1.1);
-      }
-    }
   </style>
   </head>
 
@@ -104,23 +83,6 @@
         <!-- 3D Canvas for Sphere, Pyramid, Cone -->
         <canvas id="canvas-3d-shapes" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none;"></canvas>
 
-        <!-- Light-Emitting Glow Halo - Enhanced -->
-        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 700px; height: 700px; background: radial-gradient(circle, rgba(0, 245, 212, 0.4) 0%, rgba(0, 200, 255, 0.25) 30%, rgba(0, 168, 255, 0.1) 60%, transparent 100%); filter: blur(70px); z-index: 1; pointer-events: none; animation: glowHalo 4s ease-in-out infinite;"></div>
-        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 500px; height: 500px; background: radial-gradient(circle, rgba(0, 255, 230, 0.35) 0%, rgba(0, 200, 255, 0.15) 50%, transparent 100%); filter: blur(50px); z-index: 1; pointer-events: none; animation: glowHaloBright 3.5s ease-in-out infinite;"></div>
-
-        <div class="fixed top-0 left-0 w-full h-full -z-1" data-v-12c467c1=""><!--[-->
-          <div id="ucs-container" class="hidden lg:block ucs-embed undefined" data-us-project="P24gGzLYt0hetjdqyuZv"
-            data-us-scale="1" data-us-dpi="1.0" data-us-lazyload="false" data-us-disablemobile="true" data-us-alttext=""
-            data-us-arialabel="" data-us-production="true" data-v-bfdf20ba="" data-us-initialized="true"
-            data-scene-id="id-ihau4796upq5o4qtz3dxbs" style="opacity: 1;"><canvas width="1920" height="911"
-              style="width: 1920px; height: 911px;" aria-label="Unicorn Studio Scene" role="img"></canvas></div>
-          <div id="ucs-container-mobile" class="block lg:hidden ucs-embed undefined"
-            data-us-project="7lqP7nyHJX432axl4Zi7" data-us-scale="1" data-us-dpi="1.0" data-us-lazyload="false"
-            data-us-disablemobile="true" data-us-alttext="" data-us-arialabel="" data-us-production="true"
-            data-v-bfdf20ba="" data-us-initialized="true" data-scene-id="id-z4uov7ux1k0v5vaogml"><canvas width="0"
-              height="0" aria-label="Unicorn Studio Scene" role="img" style="width: 0px; height: 0px;"></canvas></div>
-          <!--]-->
-        </div>
         <div id="text-holder-outer" class="relative w-full h-full flex items-center justify-between" data-v-12c467c1="">
           <div id="home-hero-badges" class="absolute bottom-20 lg:bottom-12 left-2 lg:left-12" data-v-12c467c1=""
             style="translate: none; rotate: none; scale: none; transform-origin: 325.883px 30px; transform: translate(0px, 0px); opacity: 1;">
