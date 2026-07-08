@@ -1,0 +1,30 @@
+<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark Blue Elements -->
+  <g id="blue-elements">
+    <!-- Left vertical bar -->
+    <rect x="40" y="30" width="50" height="140" fill="#2D2D7A" />
+    <!-- Person circle -->
+    <circle cx="95" cy="95" r="45" fill="#2D2D7A" />
+    <!-- Person icon inside circle -->
+    <circle cx="95" cy="75" r="12" fill="white" />
+    <path d="M 75 95 Q 75 105 95 105 Q 115 105 115 95" fill="white" />
+    <!-- Bottom curve -->
+    <path d="M 40 180 Q 40 200 60 200 L 140 200 Q 160 200 160 180 L 160 140 Q 160 130 150 130 L 50 130 Q 40 130 40 140 Z" fill="#2D2D7A" />
+  </g>
+
+  <!-- Red Elements -->
+  <g id="red-elements">
+    <!-- Top right K checkmark -->
+    <path d="M 200 30 L 280 30 L 210 110 L 320 110 L 200 180 Z" fill="#E63946" />
+    <!-- Bottom right K checkmark -->
+    <path d="M 200 110 L 280 110 L 210 180 L 320 180 L 200 240 Z" fill="#E63946" transform="translate(0, -40)" />
+  </g>
+
+  <!-- Text -->
+  <g id="text" font-family="Arial, sans-serif" font-weight="bold">
+    <!-- Ukonnect -->
+    <text x="170" y="95" font-size="48" fill="#2D2D7A" letter-spacing="2">Ukonnect</text>
+    <!-- Staffing -->
+    <text x="170" y="135" font-size="36" fill="#E63946" letter-spacing="1" font-weight="bold">Staffing</text>
+  </g>
+</svg>
