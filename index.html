@@ -58,9 +58,12 @@
       z-index: 1 !important;
     }
 
-    /* Lower 3D Canvas Z-Index */
+    /* Lower 3D Canvas Z-Index & Make 3D Objects Solid with Glow */
     #canvas-3d-shapes {
       z-index: 2 !important;
+      opacity: 1 !important;
+      filter: saturate(1.3) brightness(1.15) contrast(1.25) drop-shadow(0 0 30px rgba(0, 255, 255, 0.6)) drop-shadow(0 0 60px rgba(0, 200, 255, 0.4)) !important;
+      box-shadow: 0 0 40px rgba(0, 255, 255, 0.5), 0 0 80px rgba(0, 200, 255, 0.3), inset 0 0 40px rgba(0, 255, 255, 0.2) !important;
     }
 
     /* Text and Images Above 3D Objects */
