@@ -2,9 +2,9 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "digital-static",
+      "name": "crystal-preview",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server"],
+      "runtimeArgs": ["-m", "http.server", "$PORT"],
       "port": 8000,
       "autoPort": true
     }

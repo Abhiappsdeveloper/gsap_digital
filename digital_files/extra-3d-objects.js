@@ -5,22 +5,32 @@ import * as THREE from './three.module.min.js';
   if (!mount || mount.dataset.booted) return;
   mount.dataset.booted = '1';
 
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, precision: 'highp' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.setClearColor(0x000000, 0);
+  renderer.physicallyCorrectLights = true;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.2;
   mount.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
   camera.position.set(0, 0, 12);
 
-  scene.add(new THREE.AmbientLight(0x224466, 0.5));
-  const key = new THREE.DirectionalLight(0xffffff, 0.8);
+  scene.add(new THREE.AmbientLight(0x1a4d6d, 0.6));
+  const key = new THREE.DirectionalLight(0xffffff, 1.0);
   key.position.set(5, 6, 8);
   scene.add(key);
-  const rim = new THREE.PointLight(0x2fd8ff, 1.5, 20);
+  const rim = new THREE.PointLight(0x2fd8ff, 2.0, 30);
   rim.position.set(-4, 2, 4);
   scene.add(rim);
+  const rimBack = new THREE.PointLight(0x00d4ff, 1.8, 25);
+  rimBack.position.set(4, -2, -6);
+  scene.add(rimBack);
+  const fillLight = new THREE.PointLight(0x0088cc, 0.8, 20);
+  fillLight.position.set(-8, 0, 4);
+  scene.add(fillLight);
 
   function glowSprite(color, size) {
     const c = document.createElement('canvas');
@@ -37,6 +47,136 @@ import * as THREE from './three.module.min.js';
     const sprite = new THREE.Sprite(mat);
     sprite.scale.set(size, size, 1);
     return sprite;
+  }
+
+  function createCrystalTexture(width = 512, height = 512) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = 'rgba(15, 50, 80, 1)';
+    ctx.fillRect(0, 0, width, height);
+
+    // Voronoi-like crystal cells
+    const cellCount = 40;
+    const points = [];
+    for (let i = 0; i < cellCount; i++) {
+      points.push({
+        x: Math.random() * width,
+        y: Math.random() * height
+      });
+    }
+
+    // Draw crystal facets
+    ctx.strokeStyle = 'rgba(0, 200, 255, 0.6)';
+    ctx.lineWidth = 2;
+    for (let i = 0; i < points.length; i++) {
+      const p1 = points[i];
+      const p2 = points[(i + 1) % points.length];
+
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.stroke();
+
+      // Inner crystal details
+      const dx = (p2.x - p1.x) * 0.3;
+      const dy = (p2.y - p1.y) * 0.3;
+      ctx.strokeStyle = 'rgba(0, 150, 200, 0.3)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(p1.x + dx, p1.y + dy);
+      ctx.lineTo(p2.x - dx, p2.y - dy);
+      ctx.stroke();
+    }
+
+    // Add subtle noise for depth
+    const imgData = ctx.getImageData(0, 0, width, height);
+    const data = imgData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      const noise = (Math.random() - 0.5) * 20;
+      data[i] += noise;
+      data[i + 1] += noise * 1.5;
+      data[i + 2] += noise * 2;
+    }
+    ctx.putImageData(imgData, 0, 0);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+  }
+
+  function createNormalMap(width = 512, height = 512) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = '#8080ff';
+    ctx.fillRect(0, 0, width, height);
+
+    const imgData = ctx.getImageData(0, 0, width, height);
+    const data = imgData.data;
+
+    // Perlin-like noise for crystal bumps
+    for (let i = 0; i < data.length; i += 4) {
+      const val = Math.random() * 100 + 128;
+      data[i] = val;
+      data[i + 1] = val;
+      data[i + 2] = 200 + Math.random() * 55;
+      data[i + 3] = 255;
+    }
+    ctx.putImageData(imgData, 0, 0);
+
+    return new THREE.CanvasTexture(canvas);
+  }
+
+  function createFresnelShader() {
+    return {
+      uniforms: {
+        color1: { value: new THREE.Color(0x0066cc) },
+        color2: { value: new THREE.Color(0x00ffff) },
+        fresnelBias: { value: 0.1 },
+        fresnelScale: { value: 1.0 },
+        fresnelPower: { value: 3.0 },
+        time: { value: 0 }
+      },
+      vertexShader: `
+        varying vec3 vNormal;
+        varying vec3 vPosition;
+        varying vec3 vViewPosition;
+
+        void main() {
+          vNormal = normalize(normalMatrix * normal);
+          vPosition = position;
+          vViewPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 color1;
+        uniform vec3 color2;
+        uniform float fresnelBias;
+        uniform float fresnelScale;
+        uniform float fresnelPower;
+        uniform float time;
+
+        varying vec3 vNormal;
+        varying vec3 vPosition;
+        varying vec3 vViewPosition;
+
+        void main() {
+          vec3 viewDir = normalize(-vViewPosition);
+          float fresnel = fresnelBias + fresnelScale * pow(1.0 + dot(vNormal, viewDir), fresnelPower);
+
+          vec3 glowColor = mix(color1, color2, fresnel);
+          vec3 finalColor = glowColor * (0.8 + 0.2 * sin(time * 2.0));
+
+          gl_FragColor = vec4(finalColor, 0.85 + fresnel * 0.15);
+        }
+      `
+    };
   }
 
   function createPatternTexture(width = 512, height = 512, patternType = 'grid') {
@@ -158,40 +298,90 @@ import * as THREE from './three.module.min.js';
     ribbedPos.setXYZ(i, v.x, v.y, v.z);
   }
   ribbedGeo.computeVertexNormals();
-  const spherePattern = createPatternTexture(512, 512, 'hexagon');
+  const sphereCrystal = createCrystalTexture(512, 512);
+  const sphereNormal = createNormalMap(512, 512);
   const ribbedMat = new THREE.MeshStandardMaterial({
-    color: 0x2233bb,
-    metalness: 0.9,
-    roughness: 0.25,
-    emissive: 0x0a1466,
-    emissiveIntensity: 0.4,
-    map: spherePattern,
-    metalnessMap: spherePattern
+    color: 0x0066cc,
+    metalness: 0.95,
+    roughness: 0.15,
+    emissive: 0x003366,
+    emissiveIntensity: 0.6,
+    map: sphereCrystal,
+    normalMap: sphereNormal,
+    normalScale: new THREE.Vector2(2, 2),
+    metalnessMap: sphereCrystal,
+    transparent: true,
+    opacity: 0.98,
+    side: THREE.FrontSide,
+    envMapIntensity: 1.2
   });
+  ribbedMat.onBeforeCompile = (shader) => {
+    shader.uniforms.time = { value: 0 };
+    shader.fragmentShader = shader.fragmentShader.replace(
+      '#include <output_fragment>',
+      `
+      vec3 viewDir = normalize(vViewPosition);
+      float fresnel = pow(1.0 - abs(dot(vNormal, viewDir)), 3.0);
+      vec3 glowEdge = mix(vec3(0.0), vec3(0.0, 0.8, 1.0), fresnel);
+
+      gl_FragColor.rgb += glowEdge * 0.4;
+      gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0, 1.0, 1.0) * fresnel, 0.2);
+      #include <output_fragment>
+      `
+    );
+    ribbedMat.userData.shader = shader;
+  };
   const ribbedMesh = new THREE.Mesh(ribbedGeo, ribbedMat);
   ribbedMesh.position.set(-4.6, 2.4, 0);
   ribbedMesh.rotation.set(0.3, 0.4, 0);
+  ribbedMesh.castShadow = true;
+  ribbedMesh.receiveShadow = true;
   scene.add(ribbedMesh);
-  objects.push({ mesh: ribbedMesh, spin: new THREE.Vector3(0.05, 0.12, 0) });
+  objects.push({ mesh: ribbedMesh, spin: new THREE.Vector3(0.05, 0.12, 0), shader: ribbedMat });
 
   // Solid object 2: faceted prism (teal)
   const prismGeo = new THREE.ConeGeometry(1, 1.9, 3);
-  const prismPattern = createPatternTexture(512, 512, 'grid');
+  const prismCrystal = createCrystalTexture(512, 512);
+  const prismNormal = createNormalMap(512, 512);
   const prismMat = new THREE.MeshStandardMaterial({
-    color: 0x0e8f7d,
-    metalness: 0.75,
-    roughness: 0.3,
-    emissive: 0x043c33,
-    emissiveIntensity: 0.5,
+    color: 0x00a894,
+    metalness: 0.92,
+    roughness: 0.12,
+    emissive: 0x005555,
+    emissiveIntensity: 0.7,
     flatShading: true,
-    map: prismPattern,
-    metalnessMap: prismPattern
+    map: prismCrystal,
+    normalMap: prismNormal,
+    normalScale: new THREE.Vector2(2.5, 2.5),
+    metalnessMap: prismCrystal,
+    transparent: true,
+    opacity: 0.97,
+    side: THREE.FrontSide,
+    envMapIntensity: 1.3
   });
+  prismMat.onBeforeCompile = (shader) => {
+    shader.uniforms.time = { value: 0 };
+    shader.fragmentShader = shader.fragmentShader.replace(
+      '#include <output_fragment>',
+      `
+      vec3 viewDir = normalize(vViewPosition);
+      float fresnel = pow(1.0 - abs(dot(vNormal, viewDir)), 2.5);
+      vec3 glowEdge = mix(vec3(0.0), vec3(0.0, 1.0, 0.8), fresnel);
+
+      gl_FragColor.rgb += glowEdge * 0.5;
+      gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0, 1.0, 1.0) * fresnel, 0.25);
+      #include <output_fragment>
+      `
+    );
+    prismMat.userData.shader = shader;
+  };
   const prismMesh = new THREE.Mesh(prismGeo, prismMat);
   prismMesh.position.set(-0.6, 1.2, 1);
   prismMesh.rotation.set(0, 0, Math.PI / 2.3);
+  prismMesh.castShadow = true;
+  prismMesh.receiveShadow = true;
   scene.add(prismMesh);
-  objects.push({ mesh: prismMesh, spin: new THREE.Vector3(0.02, 0.09, 0.03) });
+  objects.push({ mesh: prismMesh, spin: new THREE.Vector3(0.02, 0.09, 0.03), shader: prismMat });
 
   // Solid object 3: curved shell / cone wedge (dark steel blue)
   const shellGeo = new THREE.LatheGeometry(
@@ -207,22 +397,46 @@ import * as THREE from './three.module.min.js';
     0,
     Math.PI * 0.55
   );
-  const shellPattern = createPatternTexture(512, 512, 'waves');
+  const shellCrystal = createCrystalTexture(512, 512);
+  const shellNormal = createNormalMap(512, 512);
   const shellMat = new THREE.MeshStandardMaterial({
-    color: 0x1c2b3a,
-    metalness: 0.8,
-    roughness: 0.35,
+    color: 0x004466,
+    metalness: 0.88,
+    roughness: 0.18,
     side: THREE.DoubleSide,
-    emissive: 0x08131c,
-    emissiveIntensity: 0.5,
-    map: shellPattern,
-    metalnessMap: shellPattern
+    emissive: 0x001a2e,
+    emissiveIntensity: 0.65,
+    map: shellCrystal,
+    normalMap: shellNormal,
+    normalScale: new THREE.Vector2(2.2, 2.2),
+    metalnessMap: shellCrystal,
+    transparent: true,
+    opacity: 0.96,
+    envMapIntensity: 1.1
   });
+  shellMat.onBeforeCompile = (shader) => {
+    shader.uniforms.time = { value: 0 };
+    shader.fragmentShader = shader.fragmentShader.replace(
+      '#include <output_fragment>',
+      `
+      vec3 viewDir = normalize(vViewPosition);
+      float fresnel = pow(1.0 - abs(dot(vNormal, viewDir)), 2.8);
+      vec3 glowEdge = mix(vec3(0.0), vec3(0.0, 0.9, 1.0), fresnel);
+
+      gl_FragColor.rgb += glowEdge * 0.45;
+      gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0, 1.0, 1.0) * fresnel, 0.22);
+      #include <output_fragment>
+      `
+    );
+    shellMat.userData.shader = shader;
+  };
   const shellMesh = new THREE.Mesh(shellGeo, shellMat);
   shellMesh.position.set(-3.4, -1.8, -1);
   shellMesh.rotation.set(0.2, 2.4, 0.3);
+  shellMesh.castShadow = true;
+  shellMesh.receiveShadow = true;
   scene.add(shellMesh);
-  objects.push({ mesh: shellMesh, spin: new THREE.Vector3(0.03, -0.07, 0.02) });
+  objects.push({ mesh: shellMesh, spin: new THREE.Vector3(0.03, -0.07, 0.02), shader: shellMat });
 
 
   function resize() {
@@ -239,10 +453,16 @@ import * as THREE from './three.module.min.js';
   function animate() {
     requestAnimationFrame(animate);
     const dt = clock.getDelta();
+    const elapsed = clock.getElapsedTime();
+
     for (const o of objects) {
       o.mesh.rotation.x += o.spin.x * dt;
       o.mesh.rotation.y += o.spin.y * dt;
       o.mesh.rotation.z += o.spin.z * dt;
+
+      if (o.shader && o.shader.userData && o.shader.userData.shader) {
+        o.shader.userData.shader.uniforms.time.value = elapsed;
+      }
     }
     renderer.render(scene, camera);
   }
