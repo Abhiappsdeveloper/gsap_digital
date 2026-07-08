@@ -3,9 +3,10 @@
   "configurations": [
     {
       "name": "digital-static",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["serve", "-l", "5050", "C:\\Users\\NS\\Documents\\ABHIJEET\\git\\gsap_digital"],
-      "port": 5050
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server"],
+      "port": 8000,
+      "autoPort": true
     }
   ]
 }
