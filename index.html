@@ -39,236 +39,29 @@
 
   <!-- GLOWING CYAN DESIGN ENHANCEMENT -->
   <style>
-    /* Glowing rectangle box in hero section */
-    .glow-box {
-      position: absolute;
-      width: 400px;
-      height: 400px;
-      background: transparent;
-      border: 3px solid rgba(0, 245, 212, 0.8);
-      box-shadow:
-        0 0 20px rgba(0, 245, 212, 0.6),
-        0 0 40px rgba(0, 245, 212, 0.4),
-        inset 0 0 20px rgba(0, 245, 212, 0.1),
-        inset 0 0 40px rgba(0, 168, 255, 0.05);
-      animation: glowPulse 3s ease-in-out infinite;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 5;
-      pointer-events: none;
+    #hero-webgl {
+      background: transparent !important;
     }
 
-    @keyframes glowPulse {
+    @keyframes glowHalo {
       0%, 100% {
-        box-shadow:
-          0 0 20px rgba(0, 245, 212, 0.6),
-          0 0 40px rgba(0, 245, 212, 0.4),
-          inset 0 0 20px rgba(0, 245, 212, 0.1),
-          inset 0 0 40px rgba(0, 168, 255, 0.05);
-        border-color: rgba(0, 245, 212, 0.8);
-      }
-      50% {
-        box-shadow:
-          0 0 40px rgba(0, 245, 212, 0.8),
-          0 0 80px rgba(0, 245, 212, 0.6),
-          inset 0 0 30px rgba(0, 245, 212, 0.2),
-          inset 0 0 60px rgba(0, 168, 255, 0.1);
-        border-color: rgba(0, 245, 212, 1);
-      }
-    }
-
-    /* Background glow effect */
-    #hero-webgl::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 800px;
-      height: 800px;
-      background: radial-gradient(circle, rgba(0, 245, 212, 0.15) 0%, rgba(0, 168, 255, 0.05) 50%, transparent 100%);
-      animation: glowRadiate 4s ease-in-out infinite;
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    @keyframes glowRadiate {
-      0%, 100% {
-        opacity: 0.5;
+        opacity: 0.6;
         transform: translate(-50%, -50%) scale(1);
       }
       50% {
-        opacity: 0.8;
+        opacity: 1;
         transform: translate(-50%, -50%) scale(1.2);
       }
     }
 
-    /* Enhance hero section positioning */
-    #hero-webgl {
-      position: relative;
-      background: linear-gradient(135deg, #050b14 0%, #0a1620 50%, #050b14 100%);
-    }
-
-    /* Glow accent above box */
-    #hero-webgl::after {
-      content: '';
-      position: absolute;
-      top: 20%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 500px;
-      height: 100px;
-      background: linear-gradient(180deg, rgba(0, 245, 212, 0.3) 0%, transparent 100%);
-      filter: blur(40px);
-      pointer-events: none;
-      z-index: 2;
-      animation: glowTop 3s ease-in-out infinite;
-    }
-
-    @keyframes glowTop {
+    @keyframes glowHaloBright {
       0%, 100% {
-        opacity: 0.4;
-        transform: translateX(-50%) translateY(0);
-      }
-      50% {
         opacity: 0.7;
-        transform: translateX(-50%) translateY(-20px);
-      }
-    }
-
-    /* Text styling enhancement */
-    .story-container h2 {
-      text-shadow: 0 0 30px rgba(0, 245, 212, 0.4), 0 0 60px rgba(0, 168, 255, 0.2);
-    }
-
-    .story-detail {
-      text-shadow: 0 0 20px rgba(0, 245, 212, 0.3);
-      letter-spacing: 3px;
-    }
-
-    /* 3 3D Solid Illuminated Objects */
-    .solid-object {
-      position: absolute;
-      pointer-events: none;
-      z-index: 4;
-      perspective: 1200px;
-      transform-style: preserve-3d;
-    }
-
-    .solid-object::before {
-      content: '';
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, #0a2a3a 0%, #1a5a7a 40%, #0d7a9a 100%);
-      border: 1px solid rgba(0, 200, 255, 0.6);
-      box-shadow: inset -3px -3px 10px rgba(0, 0, 0, 0.6), inset 3px 3px 10px rgba(0, 180, 255, 0.4);
-      transform: translateZ(60px);
-    }
-
-    .solid-object::after {
-      content: '';
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, #051a2a 0%, #0a4a6a 50%, #051a2a 100%);
-      border: 1px solid rgba(0, 150, 200, 0.5);
-      box-shadow: inset -2px -2px 8px rgba(0, 0, 0, 0.8), inset 2px 2px 8px rgba(0, 150, 200, 0.2);
-      transform: translateZ(-60px) rotateY(180deg);
-    }
-
-    /* 3D Object 1 - Left Prism */
-    .solid-1 {
-      width: 140px;
-      height: 240px;
-      top: 30%;
-      left: 12%;
-      animation: rotate3d1 8s linear infinite;
-    }
-
-    .solid-1::before {
-      box-shadow:
-        inset -3px -3px 10px rgba(0, 0, 0, 0.6),
-        inset 3px 3px 10px rgba(0, 180, 255, 0.4),
-        inset 0 50px 30px rgba(0, 150, 200, 0.2);
-    }
-
-    /* 3D Object 2 - Right Prism */
-    .solid-2 {
-      width: 120px;
-      height: 280px;
-      top: 22%;
-      right: 14%;
-      animation: rotate3d2 10s linear infinite;
-    }
-
-    .solid-2::before {
-      background: linear-gradient(120deg, #0a1a2a 0%, #1a5a8a 40%, #0d8aaa 100%);
-      border-color: rgba(0, 180, 255, 0.7);
-      box-shadow:
-        inset -3px -3px 10px rgba(0, 0, 0, 0.6),
-        inset 3px 3px 10px rgba(0, 200, 255, 0.3),
-        inset 0 60px 35px rgba(0, 130, 180, 0.25);
-    }
-
-    /* 3D Object 3 - Center Cube */
-    .solid-3 {
-      width: 160px;
-      height: 200px;
-      bottom: 18%;
-      left: 50%;
-      transform: translateX(-50%);
-      animation: rotate3d3 12s linear infinite;
-    }
-
-    .solid-3::before {
-      background: linear-gradient(to bottom, #1a6a8a 0%, #0a3a5a 50%, #051a2a 100%);
-      box-shadow:
-        inset -2px -2px 12px rgba(0, 0, 0, 0.7),
-        inset 2px 8px 15px rgba(0, 200, 255, 0.4),
-        0 30px 50px rgba(0, 100, 150, 0.1) inset;
-    }
-
-    /* 3D Rotation Animations */
-    @keyframes rotate3d1 {
-      0% {
-        transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
-      }
-      100% {
-        transform: rotateX(360deg) rotateY(360deg) rotateZ(180deg);
-      }
-    }
-
-    @keyframes rotate3d2 {
-      0% {
-        transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
-      }
-      100% {
-        transform: rotateX(360deg) rotateY(-360deg) rotateZ(-180deg);
-      }
-    }
-
-    @keyframes rotate3d3 {
-      0% {
-        transform: translateX(-50%) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
-      }
-      100% {
-        transform: translateX(-50%) rotateX(360deg) rotateY(360deg) rotateZ(360deg);
-      }
-    }
-
-    /* Lighting shimmer for 3D surfaces */
-    .solid-object {
-      animation: lighting3d 4s ease-in-out infinite;
-    }
-
-    @keyframes lighting3d {
-      0%, 100% {
-        filter: brightness(0.9);
+        transform: translate(-50%, -50%) scale(0.9);
       }
       50% {
-        filter: brightness(1.1);
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.1);
       }
     }
   </style>
@@ -308,16 +101,12 @@
           style="border: 0px; clip: rect(0px, 0px, 0px, 0px); clip-path: inset(50%); height: 1px; width: 1px; overflow: hidden; position: absolute; white-space: nowrap; overflow-wrap: normal; margin: -1px; padding: 0px;">Digital
           agency for brands and scalable technology | Ukonnect Staffing</span></span><!--[-->
       <section id="hero-webgl" class="relative w-screen h-screen" data-v-12c467c1="">
-        <!-- Glowing Cyan Rectangle Box -->
-        <div class="glow-box"></div>
-
         <!-- 3D Canvas for Sphere, Pyramid, Cone -->
         <canvas id="canvas-3d-shapes" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none;"></canvas>
 
-        <!-- Additional Light-Spreading Glow Boxes -->
-        <div class="glow-box" style="top: 10%; left: 12%; width: 250px; height: 250px; opacity: 0.6;"></div>
-        <div class="glow-box" style="top: 15%; right: 10%; width: 280px; height: 280px; opacity: 0.5;"></div>
-        <div class="glow-box" style="bottom: 15%; left: 18%; width: 240px; height: 240px; opacity: 0.55;"></div>
+        <!-- Light-Emitting Glow Halo - Enhanced -->
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 700px; height: 700px; background: radial-gradient(circle, rgba(0, 245, 212, 0.4) 0%, rgba(0, 200, 255, 0.25) 30%, rgba(0, 168, 255, 0.1) 60%, transparent 100%); filter: blur(70px); z-index: 1; pointer-events: none; animation: glowHalo 4s ease-in-out infinite;"></div>
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 500px; height: 500px; background: radial-gradient(circle, rgba(0, 255, 230, 0.35) 0%, rgba(0, 200, 255, 0.15) 50%, transparent 100%); filter: blur(50px); z-index: 1; pointer-events: none; animation: glowHaloBright 3.5s ease-in-out infinite;"></div>
 
         <div class="fixed top-0 left-0 w-full h-full -z-1" data-v-12c467c1=""><!--[-->
           <div id="ucs-container" class="hidden lg:block ucs-embed undefined" data-us-project="P24gGzLYt0hetjdqyuZv"

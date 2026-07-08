@@ -14,13 +14,21 @@ import * as THREE from './three.module.min.js';
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
   camera.position.set(0, 0, 12);
 
-  scene.add(new THREE.AmbientLight(0x224466, 0.6));
-  const key = new THREE.DirectionalLight(0xffffff, 1.1);
+  scene.add(new THREE.AmbientLight(0x224466, 0.8));
+  const key = new THREE.DirectionalLight(0xffffff, 1.4);
   key.position.set(5, 6, 8);
   scene.add(key);
-  const rim = new THREE.PointLight(0x2fd8ff, 2.5, 20);
+  const rim = new THREE.PointLight(0x2fd8ff, 3.5, 25);
   rim.position.set(-4, 2, 4);
   scene.add(rim);
+  // Extra cyan light for enhanced glow
+  const extraLight = new THREE.PointLight(0x00ffee, 2.8, 30);
+  extraLight.position.set(2, 3, 5);
+  scene.add(extraLight);
+  // Fill light from opposite side
+  const fillLight = new THREE.PointLight(0x0088ff, 1.8, 20);
+  fillLight.position.set(-6, -2, -3);
+  scene.add(fillLight);
 
   function glowSprite(color, size) {
     const c = document.createElement('canvas');
@@ -53,6 +61,7 @@ import * as THREE from './three.module.min.js';
 
     if (patternType === 'grid') {
       const gridSize = 32;
+      // Main grid
       for (let i = 0; i <= width; i += gridSize) {
         ctx.beginPath();
         ctx.moveTo(i, 0);
@@ -65,11 +74,38 @@ import * as THREE from './three.module.min.js';
         ctx.lineTo(width, i);
         ctx.stroke();
       }
+      // Fine grid
+      ctx.strokeStyle = 'rgba(0, 150, 200, 0.2)';
+      ctx.lineWidth = 0.5;
+      const fineGridSize = 8;
+      for (let i = 0; i <= width; i += fineGridSize) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, height);
+        ctx.stroke();
+      }
+      for (let i = 0; i <= height; i += fineGridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, i);
+        ctx.lineTo(width, i);
+        ctx.stroke();
+      }
     } else if (patternType === 'hexagon') {
       const hexSize = 24;
       for (let y = 0; y < height; y += hexSize * 1.5) {
         for (let x = 0; x < width; x += hexSize * 2) {
           drawHexagon(ctx, x + (y / (hexSize * 1.5)) % 2 * hexSize, y, hexSize);
+        }
+      }
+      // Add inner dots for detail
+      ctx.fillStyle = 'rgba(0, 200, 255, 0.3)';
+      for (let y = 0; y < height; y += hexSize * 1.5) {
+        for (let x = 0; x < width; x += hexSize * 2) {
+          const px = x + (y / (hexSize * 1.5)) % 2 * hexSize;
+          const py = y;
+          ctx.beginPath();
+          ctx.arc(px, py, 3, 0, Math.PI * 2);
+          ctx.fill();
         }
       }
     } else if (patternType === 'waves') {
@@ -78,6 +114,17 @@ import * as THREE from './three.module.min.js';
         ctx.beginPath();
         for (let y = 0; y < height; y += 2) {
           const wave = Math.sin((y + i) * 0.05) * 10;
+          if (y === 0) ctx.moveTo(i + wave, y);
+          else ctx.lineTo(i + wave, y);
+        }
+        ctx.stroke();
+      }
+      // Add secondary wave layer
+      ctx.strokeStyle = 'rgba(0, 150, 200, 0.2)';
+      for (let i = 0; i < width; i += 10) {
+        ctx.beginPath();
+        for (let y = 0; y < height; y += 2) {
+          const wave = Math.cos((y + i) * 0.08) * 8;
           if (y === 0) ctx.moveTo(i + wave, y);
           else ctx.lineTo(i + wave, y);
         }
