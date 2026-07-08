@@ -43,10 +43,72 @@
       background: transparent !important;
     }
 
+    #center-light-glow {
+      position: fixed !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      width: 700px !important;
+      height: 700px !important;
+      background: radial-gradient(circle at center, rgba(0, 255, 255, 0.6) 0%, rgba(0, 200, 255, 0.35) 20%, rgba(0, 150, 200, 0.08) 50%, transparent 70%) !important;
+      border-radius: 50% !important;
+      filter: blur(60px) !important;
+      box-shadow: 0 0 150px 70px rgba(0, 255, 255, 0.5), 0 0 250px 120px rgba(0, 200, 255, 0.2) !important;
+      pointer-events: none !important;
+      z-index: 1 !important;
+    }
+
+    /* Lower 3D Canvas Z-Index */
+    #canvas-3d-shapes {
+      z-index: 2 !important;
+    }
+
+    /* Text and Images Above 3D Objects */
+    #text-holder-outer {
+      position: relative !important;
+      z-index: 10 !important;
+    }
+
+    #text-holder {
+      position: relative !important;
+      z-index: 10 !important;
+    }
+
+    #home-hero-badges {
+      position: relative !important;
+      z-index: 10 !important;
+    }
+
+    [data-v-12c467c1] {
+      position: relative !important;
+      z-index: 10 !important;
+    }
+
+    img {
+      position: relative !important;
+      z-index: 10 !important;
+    }
+
+    text {
+      position: relative !important;
+      z-index: 10 !important;
+    }
+
+    div[data-v-12c467c1] {
+      z-index: 10 !important;
+    }
+
+    span[data-v-12c467c1] {
+      z-index: 10 !important;
+    }
+
   </style>
   </head>
 
 <body class="relative" data-new-gr-c-s-check-loaded="14.1308.0" data-gr-ext-installed="" cz-shortcut-listen="true">
+  <!-- Center Light Glow Effect - Fixed Position -->
+  <div id="center-light-glow"></div>
+
   <div id="__nuxt"><!--[--><!---->
     <header class="w-full fixed top-0 left-0 z-50" data-v-6b592c0d="">
       <div class="container flex items-center justify-between text-offwhite mx-auto mt-4 py-1" data-v-6b592c0d=""
@@ -80,6 +142,7 @@
           style="border: 0px; clip: rect(0px, 0px, 0px, 0px); clip-path: inset(50%); height: 1px; width: 1px; overflow: hidden; position: absolute; white-space: nowrap; overflow-wrap: normal; margin: -1px; padding: 0px;">Digital
           agency for brands and scalable technology | Ukonnect Staffing</span></span><!--[-->
       <section id="hero-webgl" class="relative w-screen h-screen" data-v-12c467c1="">
+
         <!-- 3D Canvas for Sphere, Pyramid, Cone -->
         <canvas id="canvas-3d-shapes" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none;"></canvas>
 
