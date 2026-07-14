@@ -18,19 +18,31 @@ import * as THREE from './three.module.min.js';
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
   camera.position.set(0, 0, 12);
 
-  scene.add(new THREE.AmbientLight(0x1a4d6d, 0.6));
-  const key = new THREE.DirectionalLight(0xffffff, 1.0);
+  scene.add(new THREE.AmbientLight(0x1a3d5d, 0.5));
+  const key = new THREE.DirectionalLight(0xffffff, 1.2);
   key.position.set(5, 6, 8);
+  key.castShadow = true;
+  key.shadow.camera.left = -20;
+  key.shadow.camera.right = 20;
+  key.shadow.camera.top = 20;
+  key.shadow.camera.bottom = -20;
+  key.shadow.mapSize.width = 2048;
+  key.shadow.mapSize.height = 2048;
   scene.add(key);
-  const rim = new THREE.PointLight(0x2fd8ff, 2.0, 30);
+  const rim = new THREE.PointLight(0x3fd9ff, 2.5, 35);
   rim.position.set(-4, 2, 4);
+  rim.castShadow = true;
   scene.add(rim);
-  const rimBack = new THREE.PointLight(0x00d4ff, 1.8, 25);
+  const rimBack = new THREE.PointLight(0x00e5ff, 2.2, 30);
   rimBack.position.set(4, -2, -6);
+  rimBack.castShadow = true;
   scene.add(rimBack);
-  const fillLight = new THREE.PointLight(0x0088cc, 0.8, 20);
+  const fillLight = new THREE.PointLight(0x0099dd, 1.2, 25);
   fillLight.position.set(-8, 0, 4);
   scene.add(fillLight);
+  const topLight = new THREE.PointLight(0xffffff, 0.8, 20);
+  topLight.position.set(0, 8, 0);
+  scene.add(topLight);
 
   function glowSprite(color, size) {
     const c = document.createElement('canvas');
@@ -301,19 +313,20 @@ import * as THREE from './three.module.min.js';
   const sphereCrystal = createCrystalTexture(512, 512);
   const sphereNormal = createNormalMap(512, 512);
   const ribbedMat = new THREE.MeshStandardMaterial({
-    color: 0x0066cc,
-    metalness: 0.95,
-    roughness: 0.15,
-    emissive: 0x003366,
-    emissiveIntensity: 0.6,
+    color: 0x0055bb,
+    metalness: 0.9,
+    roughness: 0.1,
+    emissive: 0x002255,
+    emissiveIntensity: 0.4,
     map: sphereCrystal,
     normalMap: sphereNormal,
-    normalScale: new THREE.Vector2(2, 2),
+    normalScale: new THREE.Vector2(2.5, 2.5),
     metalnessMap: sphereCrystal,
     transparent: true,
-    opacity: 0.98,
+    opacity: 0.95,
     side: THREE.FrontSide,
-    envMapIntensity: 1.2
+    envMapIntensity: 1.4,
+    wireframe: false
   });
   ribbedMat.onBeforeCompile = (shader) => {
     shader.uniforms.time = { value: 0 };
@@ -321,11 +334,12 @@ import * as THREE from './three.module.min.js';
       '#include <output_fragment>',
       `
       vec3 viewDir = normalize(vViewPosition);
-      float fresnel = pow(1.0 - abs(dot(vNormal, viewDir)), 3.0);
-      vec3 glowEdge = mix(vec3(0.0), vec3(0.0, 0.8, 1.0), fresnel);
+      float fresnel = pow(1.0 - abs(dot(vNormal, viewDir)), 2.8);
+      vec3 glowEdge = mix(vec3(0.0), vec3(0.1, 0.7, 1.0), fresnel);
 
-      gl_FragColor.rgb += glowEdge * 0.4;
-      gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0, 1.0, 1.0) * fresnel, 0.2);
+      gl_FragColor.rgb += glowEdge * 0.35;
+      gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0, 0.9, 1.0) * fresnel, 0.15);
+      gl_FragColor.rgb += vec3(0.0, 0.2, 0.3) * 0.1;
       #include <output_fragment>
       `
     );
@@ -337,27 +351,28 @@ import * as THREE from './three.module.min.js';
   ribbedMesh.castShadow = true;
   ribbedMesh.receiveShadow = true;
   scene.add(ribbedMesh);
-  objects.push({ mesh: ribbedMesh, spin: new THREE.Vector3(0.05, 0.12, 0), shader: ribbedMat });
+  objects.push({ mesh: ribbedMesh, spin: new THREE.Vector3(0.04, 0.1, 0.01), shader: ribbedMat });
 
   // Solid object 2: faceted prism (teal)
   const prismGeo = new THREE.ConeGeometry(1, 1.9, 3);
   const prismCrystal = createCrystalTexture(512, 512);
   const prismNormal = createNormalMap(512, 512);
   const prismMat = new THREE.MeshStandardMaterial({
-    color: 0x00a894,
-    metalness: 0.92,
-    roughness: 0.12,
-    emissive: 0x005555,
-    emissiveIntensity: 0.7,
+    color: 0x009a88,
+    metalness: 0.88,
+    roughness: 0.08,
+    emissive: 0x004444,
+    emissiveIntensity: 0.35,
     flatShading: true,
     map: prismCrystal,
     normalMap: prismNormal,
-    normalScale: new THREE.Vector2(2.5, 2.5),
+    normalScale: new THREE.Vector2(3, 3),
     metalnessMap: prismCrystal,
     transparent: true,
-    opacity: 0.97,
+    opacity: 0.94,
     side: THREE.FrontSide,
-    envMapIntensity: 1.3
+    envMapIntensity: 1.5,
+    wireframe: false
   });
   prismMat.onBeforeCompile = (shader) => {
     shader.uniforms.time = { value: 0 };
@@ -365,11 +380,12 @@ import * as THREE from './three.module.min.js';
       '#include <output_fragment>',
       `
       vec3 viewDir = normalize(vViewPosition);
-      float fresnel = pow(1.0 - abs(dot(vNormal, viewDir)), 2.5);
-      vec3 glowEdge = mix(vec3(0.0), vec3(0.0, 1.0, 0.8), fresnel);
+      float fresnel = pow(1.0 - abs(dot(vNormal, viewDir)), 2.3);
+      vec3 glowEdge = mix(vec3(0.0), vec3(0.0, 1.0, 0.9), fresnel);
 
-      gl_FragColor.rgb += glowEdge * 0.5;
-      gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0, 1.0, 1.0) * fresnel, 0.25);
+      gl_FragColor.rgb += glowEdge * 0.4;
+      gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0, 1.0, 1.0) * fresnel, 0.2);
+      gl_FragColor.rgb += vec3(0.0, 0.15, 0.2) * 0.08;
       #include <output_fragment>
       `
     );
@@ -381,7 +397,7 @@ import * as THREE from './three.module.min.js';
   prismMesh.castShadow = true;
   prismMesh.receiveShadow = true;
   scene.add(prismMesh);
-  objects.push({ mesh: prismMesh, spin: new THREE.Vector3(0.02, 0.09, 0.03), shader: prismMat });
+  objects.push({ mesh: prismMesh, spin: new THREE.Vector3(0.015, 0.08, 0.025), shader: prismMat });
 
   // Solid object 3: curved shell / cone wedge (dark steel blue)
   const shellGeo = new THREE.LatheGeometry(
@@ -400,19 +416,20 @@ import * as THREE from './three.module.min.js';
   const shellCrystal = createCrystalTexture(512, 512);
   const shellNormal = createNormalMap(512, 512);
   const shellMat = new THREE.MeshStandardMaterial({
-    color: 0x004466,
-    metalness: 0.88,
-    roughness: 0.18,
+    color: 0x003355,
+    metalness: 0.85,
+    roughness: 0.12,
     side: THREE.DoubleSide,
-    emissive: 0x001a2e,
-    emissiveIntensity: 0.65,
+    emissive: 0x001122,
+    emissiveIntensity: 0.3,
     map: shellCrystal,
     normalMap: shellNormal,
-    normalScale: new THREE.Vector2(2.2, 2.2),
+    normalScale: new THREE.Vector2(2.8, 2.8),
     metalnessMap: shellCrystal,
     transparent: true,
-    opacity: 0.96,
-    envMapIntensity: 1.1
+    opacity: 0.93,
+    envMapIntensity: 1.3,
+    wireframe: false
   });
   shellMat.onBeforeCompile = (shader) => {
     shader.uniforms.time = { value: 0 };
@@ -420,11 +437,12 @@ import * as THREE from './three.module.min.js';
       '#include <output_fragment>',
       `
       vec3 viewDir = normalize(vViewPosition);
-      float fresnel = pow(1.0 - abs(dot(vNormal, viewDir)), 2.8);
-      vec3 glowEdge = mix(vec3(0.0), vec3(0.0, 0.9, 1.0), fresnel);
+      float fresnel = pow(1.0 - abs(dot(vNormal, viewDir)), 2.6);
+      vec3 glowEdge = mix(vec3(0.0), vec3(0.0, 0.95, 1.0), fresnel);
 
-      gl_FragColor.rgb += glowEdge * 0.45;
-      gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0, 1.0, 1.0) * fresnel, 0.22);
+      gl_FragColor.rgb += glowEdge * 0.38;
+      gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0, 1.0, 1.0) * fresnel, 0.18);
+      gl_FragColor.rgb += vec3(0.0, 0.1, 0.2) * 0.06;
       #include <output_fragment>
       `
     );
@@ -436,7 +454,7 @@ import * as THREE from './three.module.min.js';
   shellMesh.castShadow = true;
   shellMesh.receiveShadow = true;
   scene.add(shellMesh);
-  objects.push({ mesh: shellMesh, spin: new THREE.Vector3(0.03, -0.07, 0.02), shader: shellMat });
+  objects.push({ mesh: shellMesh, spin: new THREE.Vector3(0.025, -0.065, 0.015), shader: shellMat });
 
 
   function resize() {
